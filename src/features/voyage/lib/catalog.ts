@@ -6,6 +6,14 @@ import type {
   TileKind,
 } from "@/shared/types";
 
+export interface BlindStart {
+  id: string;
+  label: string;
+  player: { x: number; y: number };
+  /** 缺省沿用关卡默认箱面；给出时整组替换，用于不同箱面的派工。 */
+  boxes?: { kind: BoxKind; x: number; y: number }[];
+}
+
 export interface LevelBlueprint {
   id: string;
   title: string;
@@ -22,6 +30,8 @@ export interface LevelBlueprint {
   }[];
   doors: { id: string; x: number; y: number }[];
   floors: { id: string; x: number; y: number; morph: FloorMorph }[];
+  /** 熄灯班入场时工房公示的几种可能起始仓位；实际派工不揭晓。 */
+  blindStarts?: BlindStart[];
 }
 
 function tilesOf(rows: string[]): TileKind[][] {
@@ -170,6 +180,96 @@ export const LEVELS: LevelBlueprint[] = [
       { id: "east", x: 7, y: 4 },
     ],
     floors: [],
+  },
+  {
+    id: "blind-01",
+    title: "听壁回廊",
+    blurb: "熄灯班：两个派工仓位在同一条横廊，箱子远近不同。撞墙铃也会暴露位置，听铃决定还要推几下。",
+    rows: [
+      "#########",
+      "#......*#",
+      "#########",
+    ],
+    player: { x: 1, y: 1 },
+    boxes: [{ kind: "timber", x: 2, y: 1 }],
+    plates: [],
+    doors: [],
+    floors: [],
+    blindStarts: [
+      {
+        id: "b1-near",
+        label: "近端仓位：人(1,1) 箱(2,1)",
+        player: { x: 1, y: 1 },
+        boxes: [{ kind: "timber", x: 2, y: 1 }],
+      },
+      {
+        id: "b1-far",
+        label: "远端仓位：人(4,1) 箱(5,1)",
+        player: { x: 4, y: 1 },
+        boxes: [{ kind: "timber", x: 5, y: 1 }],
+      },
+    ],
+  },
+  {
+    id: "blind-02",
+    title: "铃辨闸口",
+    blurb: "熄灯班：先听撞墙铃判断自己在北廊哪头，绕到箱子北侧后连推三下；开门铃、关门铃会逐次响起。",
+    rows: [
+      "#########",
+      "#.......#",
+      "####.####",
+      "####.####",
+      "####.####",
+      "####*####",
+      "#########",
+    ],
+    player: { x: 4, y: 1 },
+    boxes: [{ kind: "timber", x: 4, y: 2 }],
+    plates: [{ accept: "timber", x: 4, y: 3, doorIds: ["d1"], floorIds: [] }],
+    doors: [{ id: "d1", x: 4, y: 4 }],
+    floors: [],
+    blindStarts: [
+      {
+        id: "b2-west",
+        label: "北廊西头：人(1,1) 箱(4,2)",
+        player: { x: 1, y: 1 },
+      },
+      {
+        id: "b2-east",
+        label: "北廊东头：人(7,1) 箱(4,2)",
+        player: { x: 7, y: 1 },
+      },
+    ],
+  },
+  {
+    id: "blind-03",
+    title: "镜像双仓",
+    blurb: "熄灯班反例：两个派工仓位东西镜像，两只箱子要分别归到左右目标。任何口令在两边都响同样的铃，却需要朝相反方向推。可证明无法保证。",
+    rows: [
+      "#########",
+      "#*..#..*#",
+      "#########",
+    ],
+    player: { x: 2, y: 1 },
+    boxes: [
+      { kind: "timber", x: 3, y: 1 },
+      { kind: "timber", x: 5, y: 1 },
+    ],
+    plates: [],
+    doors: [],
+    floors: [],
+    blindStarts: [
+      {
+        id: "b3-left",
+        label: "左仓：人(2,1)，两箱在(3,1)(5,1)",
+        player: { x: 2, y: 1 },
+      },
+      {
+        id: "b3-right",
+        label: "右仓：人(6,1)，两箱在(3,1)(5,1)",
+        player: { x: 6, y: 1 },
+      },
+    ],
   },
 ];
 
